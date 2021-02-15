@@ -17,7 +17,6 @@
  
 package tsml.transformers;
 
-import akka.util.Index;
 import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.TimeSeriesInstances;
 
@@ -29,7 +28,6 @@ import weka.core.Instances;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Objects;
 
 public class Indexer extends BaseTrainableTransformer {
 

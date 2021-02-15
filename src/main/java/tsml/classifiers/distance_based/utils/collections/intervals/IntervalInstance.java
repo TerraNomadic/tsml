@@ -17,9 +17,7 @@
  
 package tsml.classifiers.distance_based.utils.collections.intervals;
 
-import experiments.data.DatasetLoading;
 import weka.core.Attribute;
-import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
