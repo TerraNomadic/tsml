@@ -1,16 +1,15 @@
 package exb17gxu;
 
-import org.checkerframework.checker.units.qual.A;
+import experiments.data.DatasetLoading;
+import weka.attributeSelection.ScatterSearchV1;
 import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Debug;
 import weka.core.Instance;
 import weka.core.Instances;
 
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Vector;
+import java.util.HashSet;
 
 public class WekaTools {
 
@@ -54,16 +53,6 @@ public class WekaTools {
 
     public static double[] classDistribution(Instances data) {
         double[] dist = new double[data.numClasses()];
-
-        /*HashMap<Double, Integer> values = new HashMap<>();
-        for (Instance ins : data) {
-            if (!values.containsKey(ins.classValue())) {
-                values.put(ins.classValue(), 1);
-            } else {
-                values.replace(ins.classValue(),values.get(ins.classValue())+1);
-            }
-        }*/
-
         for (Instance ins : data) {
             dist[(int) ins.classValue()]++;
         }
@@ -71,5 +60,83 @@ public class WekaTools {
             dist[i] = dist[i] / data.numInstances();
         }
         return dist;
+    }
+
+    public static int[][] confusionMatrix(int[] predicted, int[] actual) {
+        if (predicted.length != actual.length) {
+            System.err.println("Error: predicted and actual not same length.");
+            return null;
+        }
+        int numClasses = 0;
+        HashSet<Integer> hs = new HashSet<Integer>();
+        for (int j : predicted) {
+            hs.add(j);
+        }
+        numClasses = hs.size();
+
+        int[][] confusionMatrix = new int[numClasses][numClasses];
+        for (int i = 0; i < predicted.length; i++) {
+            confusionMatrix[predicted[i]][actual[i]]++;
+        }
+        return confusionMatrix;
+    }
+
+    public static void printConfMatrix(int[][] cM) {
+        System.out.println("    A       ");
+        System.out.println("P   0, 1");
+        System.out.println("0   " + cM[0][0] + ", " + cM[0][1]);
+        System.out.println("1   " + cM[1][0] + ", " + cM[1][1]);
+    }
+
+    public static int[] classifyInstances(Classifier c, Instances test) {
+        int[] pred = new int[test.numInstances()];
+        for (int i = 0; i < test.numInstances(); i++) {
+            try {
+                pred[i] = (int) c.classifyInstance(test.instance(i));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return pred;
+    }
+
+    public static int[] getClassValues(Instances data) {
+        int[] classValues = new int[data.numInstances()];
+        for (int i = 0; i < data.numInstances(); i++) {
+            classValues[i] = (int) data.instance(i).classValue();
+        }
+        return classValues;
+    }
+
+    public static void main (String[] args) {
+        String basePath = "src/main/java/experiments/data/tsc/";
+        String dataset = "ItalyPowerDemand";
+
+        Instances train = loadClassificationData(basePath + dataset + "/" + dataset + "_TRAIN.arff");
+        Instances test = loadClassificationData(basePath + dataset + "/" + dataset + "_TEST.arff");
+
+        System.out.println("train numInstances = " + train.numInstances());
+        System.out.println("test numInstances = " + test.numInstances());
+        System.out.println("train numAttributes = " + train.numAttributes());
+        System.out.println("test numAttributes = " + test.numAttributes());
+
+        NaiveBayes nB = new NaiveBayes();
+        try {
+            nB.buildClassifier(train);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        double acc = accuracy(nB, test);
+        System.out.println("Accuracy = " + acc);
+
+        int[] actual = getClassValues(test);
+        int[] predicted = classifyInstances(nB, test);
+        System.out.println("Actual length = " + actual.length);
+        System.out.println("Predicted length = " + predicted.length);
+
+        int[][] cM = confusionMatrix(predicted, actual);
+        System.out.println("Confusion = ");
+        printConfMatrix(cM);
     }
 }
