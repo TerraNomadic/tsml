@@ -4,6 +4,7 @@ import experiments.data.DatasetLoading;
 import weka.attributeSelection.ScatterSearchV1;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.rules.ZeroR;
 import weka.core.Debug;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -69,13 +70,13 @@ public class WekaTools {
         }
         int numClasses = 0;
         HashSet<Integer> hs = new HashSet<Integer>();
-        for (int j : predicted) {
-            hs.add(j);
+        for (int i : actual) {
+            hs.add(i);
         }
         numClasses = hs.size();
 
         int[][] confusionMatrix = new int[numClasses][numClasses];
-        for (int i = 0; i < predicted.length; i++) {
+        for (int i = 0; i < actual.length; i++) {
             confusionMatrix[predicted[i]][actual[i]]++;
         }
         return confusionMatrix;
@@ -120,23 +121,42 @@ public class WekaTools {
         System.out.println("train numAttributes = " + train.numAttributes());
         System.out.println("test numAttributes = " + test.numAttributes());
 
-        NaiveBayes nB = new NaiveBayes();
+        MajorityClassifier mC = new MajorityClassifier();
         try {
-            nB.buildClassifier(train);
+            mC.buildClassifier(train);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        double acc = accuracy(nB, test);
+        double acc = accuracy(mC, test);
         System.out.println("Accuracy = " + acc);
 
         int[] actual = getClassValues(test);
-        int[] predicted = classifyInstances(nB, test);
+        int[] predicted = classifyInstances(mC, test);
         System.out.println("Actual length = " + actual.length);
         System.out.println("Predicted length = " + predicted.length);
 
         int[][] cM = confusionMatrix(predicted, actual);
         System.out.println("Confusion = ");
         printConfMatrix(cM);
+
+        ZeroR zC = new ZeroR();
+        try {
+            zC.buildClassifier(train);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        double accZC = accuracy(zC, test);
+        System.out.println("Accuracy = " + accZC);
+
+        int[] actualZC = getClassValues(test);
+        int[] predictedZC = classifyInstances(zC, test);
+        System.out.println("Actual length = " + actualZC.length);
+        System.out.println("Predicted length = " + predictedZC.length);
+
+        int[][] zCM = confusionMatrix(predictedZC, actualZC);
+        System.out.println("Confusion = ");
+        printConfMatrix(zCM);
     }
 }
