@@ -1,9 +1,6 @@
 package exb17gxu;
 
-import experiments.data.DatasetLoading;
-import weka.attributeSelection.ScatterSearchV1;
 import weka.classifiers.Classifier;
-import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.rules.ZeroR;
 import weka.core.Debug;
 import weka.core.Instance;

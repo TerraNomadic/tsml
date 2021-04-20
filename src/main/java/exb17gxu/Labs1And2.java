@@ -7,7 +7,7 @@ import weka.core.Instances;
 
 import java.io.FileReader;
 
-public class Lab1 {
+public class Labs1And2 {
 
     static String rootPath = "/Users/Alex/OneDrive - University of East Anglia/Year 3/Machine Learning/Labs/Labs1/";
 
