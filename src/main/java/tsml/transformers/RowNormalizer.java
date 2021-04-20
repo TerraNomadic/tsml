@@ -32,6 +32,7 @@
 package tsml.transformers;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -283,7 +284,7 @@ public class RowNormalizer implements Transformer {
 			out.add(standardNorm(ts));
 		}
 		
-		return new TimeSeriesInstance(inst.getLabelIndex(), inst.getClassLabels(), out);
+		return new TimeSeriesInstance(inst.getLabelIndex(), out);
 	}
 
 	public static TimeSeriesInstance standard(TimeSeriesInstance inst) {
@@ -292,7 +293,7 @@ public class RowNormalizer implements Transformer {
 			out.add(standard(ts));
 		}
 		
-		return new TimeSeriesInstance(inst.getLabelIndex(), inst.getClassLabels(), out);
+		return new TimeSeriesInstance(inst.getLabelIndex(), out);
 	}
 
 	public static TimeSeriesInstance intervalNorm(TimeSeriesInstance inst) {
@@ -301,7 +302,7 @@ public class RowNormalizer implements Transformer {
 			out.add(intervalNorm(ts));
 		}
 		
-		return new TimeSeriesInstance(inst.getLabelIndex(), inst.getClassLabels(), out);
+		return new TimeSeriesInstance(inst.getLabelIndex(), out);
 	}
 
 	public static TimeSeries standardNorm(TimeSeries ts) {
@@ -361,11 +362,11 @@ public class RowNormalizer implements Transformer {
 			"OliveOil", "Earthquakes", "Ford_A", "Ford_B" };
 	static String path = "C:\\Research\\Data\\Time Series Data\\Time Series Classification\\";
 
-	public static void main(String[] args) {
-		String local_path = "D:\\Work\\Data\\Univariate_ts\\"; //Aarons local path for testing.
-        String dataset_name = "ChinaTown";
-        Instances train = DatasetLoading.loadData(local_path + dataset_name + File.separator + dataset_name+"_TRAIN.ts");
-        Instances test  = DatasetLoading.loadData(local_path + dataset_name + File.separator + dataset_name+"_TEST.ts");
+	public static void main(String[] args) throws IOException {
+		String localPath="src/main/java/experiments/data/tsc/";
+        String datasetName = "ChinaTown";
+        Instances train = DatasetLoading.loadData(localPath + datasetName + File.separator + datasetName+"_TRAIN.ts");
+        Instances test  = DatasetLoading.loadData(localPath + datasetName + File.separator + datasetName+"_TEST.ts");
         RowNormalizer hTransform= new RowNormalizer();
         Instances out_train = hTransform.transform(train);
         Instances out_test = hTransform.transform(test);

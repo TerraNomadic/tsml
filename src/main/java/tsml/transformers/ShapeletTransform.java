@@ -280,9 +280,9 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
     @Override
     public TimeSeriesInstance transform(TimeSeriesInstance inst) {
         // init out data for transforming.
-        shapeletDistance.init(inputData);
+        shapeletDistance.init(inputDataTS);
         // setup classsValue
-        classValue.init(inputData);
+        classValue.init(inputDataTS);
 
         Shapelet s;
         //get distance to each shapelet and create new instance
@@ -297,7 +297,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
             out[0][i] = shapeletDistance.calculate(inst, 0);
         }
     
-        return new TimeSeriesInstance(out, inst.getLabelIndex(), inst.getClassLabels());
+        return new TimeSeriesInstance(out, inst.getLabelIndex());
     }
 
     @Override
@@ -425,9 +425,9 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
 
     public TimeSeriesInstances buildTansformedDataset(TimeSeriesInstances data) {
         // init out data for transforming.
-        shapeletDistance.init(inputData);
+        shapeletDistance.init(inputDataTS);
         // setup classsValue
-        classValue.init(inputData);
+        classValue.init(inputDataTS);
 
         Shapelet s;
         // for each data, get distance to each shapelet and create new instance
@@ -565,7 +565,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
             // "+usedTime/1000000000.0+" Contract time (secs) ="+contractTime/1000000000.0+"
             // contracted = "+contracted+" search type = "+searchFunction.getSearchType());
             // get the Shapelets list based on the classValue of our current time series.
-            kShapelets = kShapeletsMap.get(data.get(casesSoFar).getLabelIndex());
+            kShapelets = kShapeletsMap.get((double) data.get(casesSoFar).getLabelIndex());
             // we only want to pass in the worstKShapelet if we've found K shapelets. but we
             // only care about
             // this class values worst one. This is due to the way we represent each classes
@@ -591,18 +591,9 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
                 else
                     current = searchFunction;
 
-                System.out.println(" time for case " + casesSoFar + " evaluate  " + seriesShapelets.size()
-                        + " but what about early ones?");
-                System.out.println(" Est time per shapelet  " + timePerShapelet / 1000000000 + " actual "
-                        + newTimePerShapelet / 1000000000);
-                shapeletsSearchedPerSeries = adjustNumberPerSeries(contractTime - usedTime, numSeriesToUse - casesSoFar,
+              shapeletsSearchedPerSeries = adjustNumberPerSeries(contractTime - usedTime, numSeriesToUse - casesSoFar,
                         newTimePerShapelet);
-                System.out.println("Changing number of shapelets sampled from "
-                        + searchFunction.getNumShapeletsPerSeries() + " to " + shapeletsSearchedPerSeries);
                 searchFunction.setNumShapeletsPerSeries(shapeletsSearchedPerSeries);
-                System.out.println("data : " + casesSoFar + " has " + seriesShapelets.size() + " candidates"
-                        + " cumulative early abandons " + numEarlyAbandons + " worst so far =" + worstShapelet
-                        + " evaluated this series = " + (seriesShapelets.size() + tempEA));
             }
             if (seriesShapelets != null) {
                 Collections.sort(seriesShapelets, shapeletComparator);
@@ -705,19 +696,19 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
                 else
                     current = searchFunction;
 
-                System.out.println(" time for case " + casesSoFar + " evaluate  " + seriesShapelets.size()
+/*                System.out.println(" time for case " + casesSoFar + " evaluate  " + seriesShapelets.size()
                         + " but what about early ones?");
                 System.out.println(" Est time per shapelet  " + timePerShapelet / 1000000000 + " actual "
                         + newTimePerShapelet / 1000000000);
-                shapeletsSearchedPerSeries = adjustNumberPerSeries(contractTime - usedTime, numSeriesToUse - casesSoFar,
+*/                shapeletsSearchedPerSeries = adjustNumberPerSeries(contractTime - usedTime, numSeriesToUse - casesSoFar,
                         newTimePerShapelet);
-                System.out.println("Changing number of shapelets sampled from "
+/*                System.out.println("Changing number of shapelets sampled from "
                         + searchFunction.getNumShapeletsPerSeries() + " to " + shapeletsSearchedPerSeries);
                 searchFunction.setNumShapeletsPerSeries(shapeletsSearchedPerSeries);
                 System.out.println("data : " + casesSoFar + " has " + seriesShapelets.size() + " candidates"
                         + " cumulative early abandons " + numEarlyAbandons + " worst so far =" + worstShapelet
                         + " evaluated this series = " + (seriesShapelets.size() + tempEA));
-            }
+*/            }
             if (seriesShapelets != null) {
                 Collections.sort(seriesShapelets, shapeletComparator);
                 if (isRemoveSelfSimilar())
@@ -1166,7 +1157,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
         // distance from candidate to all data, inserting in order.
         ArrayList<OrderLineObj> orderline = new ArrayList<>();
 
-        int dataSize = inputData.numInstances();
+        int dataSize = inputDataTS.numInstances();
 
         for (int i = 0; i < dataSize; i++) {
 

@@ -24,6 +24,7 @@ import experiments.Experiments;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -31,6 +32,9 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import tsml.classifiers.distance_based.utils.strings.StrUtils;
+import tsml.data_containers.TimeSeriesInstances;
+import tsml.data_containers.utilities.Converter;
+import tsml.data_containers.utilities.TimeSeriesResampler;
 import utilities.ClassifierTools;
 import utilities.InstanceTools;
 import utilities.multivariate_tools.MultivariateInstanceTools;
@@ -113,6 +117,10 @@ public class DatasetLoading {
         return sampleDataset(BAKED_IN_TSC_DATA_PATH, "ItalyPowerDemand", seed);
     }
 
+    public static TimeSeriesInstances[] sampleTSItalyPowerDemand(int seed) throws IOException {
+        return sampleTSDataset(BAKED_IN_TSC_DATA_PATH, "ItalyPowerDemand", seed);
+    }
+
     public static Instances loadItalyPowerDemand() throws Exception {
         final Instances[] instances = sampleItalyPowerDemand(0);
         instances[0].addAll(instances[1]);
@@ -167,6 +175,23 @@ public class DatasetLoading {
      */
     public static Instances[] sampleBasicMotions(int seed) throws Exception {
         return sampleDataset(BAKED_IN_MTSC_DATA_PATH, "BasicMotions", seed);
+    }
+
+    /**
+     * Helper function for loading the baked-in ERing dataset, one of the
+     * UEA datasets for MTSC
+     *
+     * http://timeseriesclassification.com/description.php?Dataset=ERing
+     *
+     * UEA-MTSC data comes with predefined fold 0 splits. If a seed of 0 is given, that exact split is returned.
+     * Train/test distributions are maintained between resamples.
+     *
+     * @param seed the seed for resampling the data
+     * @return new Instances[] { trainSet, testSet };
+     * @throws Exception if data loading or sampling failed
+     */
+    public static Instances[] sampleERing(int seed) throws Exception {
+        return sampleDataset(BAKED_IN_MTSC_DATA_PATH, "ERing", seed);
     }
 
     /**
@@ -401,6 +426,79 @@ public class DatasetLoading {
         return inst;
     }
 
+    /**
+     * Loads the ts file at the target location or throws IOException on any error.
+     *
+     * @param targetFile the file to try and load
+     * @return Instances from file.
+     * @throws java.io.IOException if cannot find the file, or file is malformed
+     */
+    public static TimeSeriesInstances loadTSData(File targetFile) throws IOException {
+        String[] parts = targetFile.getName().split(Pattern.quote("."));
+        String extension;
+        final String ARFF = ".arff", TS = ".ts";
+
+        if (parts.length == 2) {
+            extension = "." + parts[1]; //split will remove the .
+        }
+        else {
+            //have not been given a specific extension
+            //look for arff or ts formats
+            //arbitrarily looking for arff first
+            File newtarget = new File(targetFile.getAbsolutePath() + ARFF);
+            if (newtarget.exists()) {
+                targetFile = newtarget;
+                extension = ARFF;
+            }
+            else {
+                newtarget = new File(targetFile.getAbsolutePath() + TS);
+                if (newtarget.exists()) {
+                    targetFile = newtarget;
+                    extension = TS;
+                }
+                else
+                    throw new IOException("Cannot find file " + targetFile.getAbsolutePath() + " with either .arff or .ts extensions.");
+            }
+        }
+
+        TimeSeriesInstances inst = null;
+        FileReader reader = new FileReader(targetFile);
+
+        if (extension.equalsIgnoreCase(ARFF)) {
+            inst = Converter.fromArff(new Instances(reader));
+        }
+        else if (extension.equalsIgnoreCase(TS)) {
+            tsml.data_containers.ts_fileIO.TSReader tsReader = new tsml.data_containers.ts_fileIO.TSReader(reader);
+            inst = tsReader.GetInstances();
+        }
+        reader.close();
+
+        return inst;
+    }
+
+    /**
+     * Loads the ts file at the target location.
+     *
+     * @param fullPath path to the file to try and load
+     * @return Instances from file.
+     */
+    public static TimeSeriesInstances loadTSData(String fullPath) throws IOException {
+        return loadTSData(new File(fullPath));
+    }
+
+    public static TimeSeriesInstances[] sampleTSDataset(String parentFolder, String problem, int fold) throws IOException {
+        TimeSeriesInstances[] split = new TimeSeriesInstances[2];
+
+        TimeSeriesInstances train = DatasetLoading.loadTSData(parentFolder + problem + "/" + problem + "_TRAIN.ts");
+        TimeSeriesInstances test = DatasetLoading.loadTSData(parentFolder + problem + "/" + problem + "_TEST.ts");
+
+        TimeSeriesResampler.TrainTest trainTest = TimeSeriesResampler.resampleTrainTest(train, test, fold);
+        split[0] = trainTest.train;
+        split[1] = trainTest.test;
+
+        return split;
+    }
+
 
     /**
      * Loads the arff file at the target location and sets the last attribute to be the class value,
@@ -409,8 +507,8 @@ public class DatasetLoading {
      * @param fullPath path to the file to try and load
      * @return Instances from file.
      */
-    public static Instances loadData(String fullPath) {
-        return loadDataNullable(new File(fullPath));
+    public static Instances loadData(String fullPath) throws IOException {
+        return loadDataThrowable(new File(fullPath));
     }
 
 

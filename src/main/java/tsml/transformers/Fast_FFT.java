@@ -91,7 +91,7 @@ public class Fast_FFT implements Transformer {
         return instances;
     }
 
-    private void nearestPowerOF2(int x) {
+    public void nearestPowerOF2(int x) {
         float power = (float) (Math.log(x) / Math.log(2));
         int m = (int) Math.ceil(power);
         nfft = (int) Math.pow(2.0, (double) m);
@@ -144,7 +144,7 @@ public class Fast_FFT implements Transformer {
             //TODO: make this NaN Safe. Mean is NaN safe but toArray isnt.
             out[i++] = calculate_FFT(ts.toValueArray(), TimeSeriesSummaryStatistics.mean(ts));
         }
-        return new TimeSeriesInstance(out, inst.getLabelIndex(), inst.getClassLabels()); 
+        return new TimeSeriesInstance(out, inst.getLabelIndex()); 
     }
 
     private double[] calculate_FFT(double[] data, double mean) {
