@@ -65,8 +65,8 @@ public class WekaTools {
             System.err.println("Error: predicted and actual not same length.");
             return null;
         }
-        int numClasses = 0;
-        HashSet<Integer> hs = new HashSet<Integer>();
+        int numClasses;
+        HashSet<Integer> hs = new HashSet<>();
         for (int i : actual) {
             hs.add(i);
         }
@@ -113,6 +113,8 @@ public class WekaTools {
         Instances train = loadClassificationData(basePath + dataset + "/" + dataset + "_TRAIN.arff");
         Instances test = loadClassificationData(basePath + dataset + "/" + dataset + "_TEST.arff");
 
+        assert train != null;
+        assert test != null;
         System.out.println("train numInstances = " + train.numInstances());
         System.out.println("test numInstances = " + test.numInstances());
         System.out.println("train numAttributes = " + train.numAttributes());
@@ -135,6 +137,7 @@ public class WekaTools {
 
         int[][] cM = confusionMatrix(predicted, actual);
         System.out.println("Confusion = ");
+        assert cM != null;
         printConfMatrix(cM);
 
         ZeroR zC = new ZeroR();
@@ -154,6 +157,7 @@ public class WekaTools {
 
         int[][] zCM = confusionMatrix(predictedZC, actualZC);
         System.out.println("Confusion = ");
+        assert zCM != null;
         printConfMatrix(zCM);
     }
 }
