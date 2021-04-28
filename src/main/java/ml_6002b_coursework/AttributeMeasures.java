@@ -27,7 +27,7 @@ public class AttributeMeasures {
         double entropy = 0;
         int classSum = Arrays.stream(classCounts).sum();
         for (int count : classCounts) {
-            entropy += (count / (float)classSum) * log(count / (float)classSum); // TODO: Check which log
+            entropy += (count / (float)classSum) * logBase2(count / (float)classSum);
         }
         return -entropy;
     }
@@ -40,17 +40,6 @@ public class AttributeMeasures {
      * @return the information gain as a double
      */
     public static double measureInformationGain(int[][] att_table) {
-        // H=-sum[i=1->c](P(i)log(P(i)))
-        // rows represent different values of the attribute being assessed,
-        // and the columns the class counts
-
-        // Headache:
-        //           pos       neg      T
-        //   yes      3         2       5
-        //   no       3         4       7
-        //    T       6         6       12
-
-        // {{3, 2}, {3, 4}}
 
         int[] colSums = new int[att_table[0].length];
         int[] rowSums = new int[att_table.length];
@@ -69,10 +58,12 @@ public class AttributeMeasures {
             colSums[j] = colSum;
             first = false;
         }
-        double gain = calcEntropy(colSums);
 
+        double gain = calcEntropy(colSums);
+        int colSumsSum = Arrays.stream(colSums).sum();
         for (int i = 0; i < attValueEntropies.length; i++) {
-            gain -= (rowSums[i] / (float)(att_table.length * att_table[i].length)) * attValueEntropies[i];
+            gain -= (rowSums[i] / (float)colSumsSum) *
+                    attValueEntropies[i];
         }
 
         return gain;
@@ -87,6 +78,18 @@ public class AttributeMeasures {
      */
     public static double measureGini(int[][] att_table) {
         // I=1-((X/T)^2+(Y/T)^2)
+        // rows represent different values of the attribute being assessed,
+        // and the columns the class counts
+
+        // Headache:
+        //           pos       neg      T
+        //   yes      3         2       5
+        //   no       3         4       7
+        //    T       6         6       12
+
+        // {{3, 2}, {3, 4}}
+
+
         return 0;
     }
 
@@ -114,14 +117,22 @@ public class AttributeMeasures {
         return 0;
     }
 
+    public static double logBase2(double x) {
+        return (Math.log(x) / Math.log(2));
+    }
+
     public static void main (String[] args) {
         int[][] testTable = {{3, 2}, {3, 4}};
+        int[] classCounts = {3, 4};
 
+        double ent = calcEntropy(classCounts);
         double infGain = measureInformationGain(testTable);
         //double gini = measureGini(testTable);
         //double chi = measureChiSquared(testTable);
         //double chiYates = measureChiSquaredYates(testTable);
 
+        System.out.println("log base 2 of 0.5 = " + logBase2(0.5));
+        System.out.println("entropy = " + ent);
         System.out.println("measure information gain for headache " +
                 "splitting diagnosis = " + infGain);
         //System.out.println("measure gini index for headache splitting " +
