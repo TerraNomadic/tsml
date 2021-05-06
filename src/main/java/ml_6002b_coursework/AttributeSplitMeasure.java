@@ -29,7 +29,13 @@ public interface AttributeSplitMeasure {
         Enumeration instEnum = data.enumerateInstances();
         while (instEnum.hasMoreElements()) {
             Instance inst = (Instance) instEnum.nextElement();
-            splitData[(int) inst.value(att)].add(inst);
+            //splitData[(int)inst.value(att)].add(inst);
+            if (inst.value(0) == 0.0) {
+                splitData[0].add(inst);
+            } else {
+                splitData[1].add(inst); //TODO: Remove!!!!
+            }
+
         }
         for (int i = 0; i < splitData.length; i++) {
             splitData[i].compactify();
