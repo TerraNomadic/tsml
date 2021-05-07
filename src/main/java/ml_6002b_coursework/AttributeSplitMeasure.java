@@ -12,7 +12,14 @@ import java.util.Enumeration;
  */
 public interface AttributeSplitMeasure {
 
-    double computeAttributeQuality(Instances data, Attribute att) throws Exception;
+    default double computeAttributeQuality(Instances data, Attribute att) {
+        throw new UnsupportedOperationException();
+    }
+
+    default double computeAttributeQuality(Instances data, Attribute att,
+                                   boolean chiYates) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Splits a dataset according to the values of a nominal attribute.
@@ -37,9 +44,9 @@ public interface AttributeSplitMeasure {
             }
 
         }
-        for (int i = 0; i < splitData.length; i++) {
-            splitData[i].compactify();
-        }
+         for (Instances splitDatum : splitData) {
+             splitDatum.compactify();
+         }
         return splitData;
     }
 

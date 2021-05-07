@@ -1,6 +1,5 @@
 package ml_6002b_coursework;
 
-import exb17gxu.WekaTools;
 import experiments.data.DatasetLoading;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -8,8 +7,6 @@ import weka.core.Instances;
 
 import java.util.Enumeration;
 import java.util.Vector;
-
-import static exb17gxu.WekaTools.loadClassificationData;
 
 /**
  * CMP-6002B Machine Learning Classification with Decision Trees
@@ -31,7 +28,8 @@ public class ChiSquaredAttributeSplitMeasure implements AttributeSplitMeasure {
      * @return the chi for the given attribute and data
      */
     @Override
-    public double computeAttributeQuality(Instances data, Attribute att) throws Exception {
+    public double computeAttributeQuality(Instances data, Attribute att,
+                                          boolean chiYates) {
 
         double chi = 0.0;
         Instances[] splitData = splitData(data, att);
@@ -57,7 +55,11 @@ public class ChiSquaredAttributeSplitMeasure implements AttributeSplitMeasure {
                 for (int j = 0; j < splitClassCounts[i].length; j++) {
                     double exp = (splitData[i].numInstances() *
                             (dataClassCount[j] / data.numInstances()));
-                    chi += Math.pow((splitClassCounts[i][j] - exp),2) / exp;
+                    if (chiYates) {
+                        chi += Math.pow((splitClassCounts[i][j] - exp - 0.5), 2) / exp;
+                    } else {
+                        chi += Math.pow((splitClassCounts[i][j] - exp), 2) / exp;
+                    }
                 }
             }
         }
@@ -77,6 +79,7 @@ public class ChiSquaredAttributeSplitMeasure implements AttributeSplitMeasure {
         Instances meningitis = DatasetLoading.loadDataThrowable(basePath + dataset + "_TRAIN.arff");
         //Instances meningitis = loadClassificationData(basePath + dataset + "_TRAIN.arff");
 
-        System.out.println("chi Headache = " + chi.computeAttributeQuality(meningitis, headache));
+        System.out.println("chi Headache = " + chi.computeAttributeQuality(meningitis, headache, false));
+        System.out.println("chi yates Headache = " + chi.computeAttributeQuality(meningitis, headache, true));
     }
 }

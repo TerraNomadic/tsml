@@ -27,10 +27,9 @@ public class IGAttributeSplitMeasure implements AttributeSplitMeasure {
      * @param data the data for which info gain is to be computed
      * @param att the attribute
      * @return the information gain for the given attribute and data
-     * @throws Exception if computation fails
      */
     @Override
-    public double computeAttributeQuality(Instances data, Attribute att) throws Exception {
+    public double computeAttributeQuality(Instances data, Attribute att) {
 
         double infoGain = computeEntropy(data);
         Instances[] splitData = splitData(data, att);
