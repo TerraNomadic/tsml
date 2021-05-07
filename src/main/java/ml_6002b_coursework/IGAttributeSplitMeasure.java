@@ -70,4 +70,9 @@ public class IGAttributeSplitMeasure implements AttributeSplitMeasure {
 
         return entropy + Utils.log2(data.numInstances());
     }
+
+    @Override
+    public String toString() {
+        return "-I: Attribute is Information Gain.";
+    }
 }

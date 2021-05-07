@@ -69,6 +69,11 @@ public class GiniAttributeSplitMeasure implements AttributeSplitMeasure {
         return impurity;
     }
 
+    @Override
+    public String toString() {
+        return "-G: Attribute is Gini Index.";
+    }
+
     public static void main (String[] args) throws Exception {
         String basePath = "src/main/java/ml_6002b_coursework/test_data/";
         String dataset = "Meningitis";
