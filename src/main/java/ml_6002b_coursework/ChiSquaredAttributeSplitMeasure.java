@@ -25,6 +25,7 @@ public class ChiSquaredAttributeSplitMeasure implements AttributeSplitMeasure {
      *
      * @param data the data for which chi is to be computed
      * @param att  the attribute
+     * @param chiYates toggle for the Yates correction to chi
      * @return the chi for the given attribute and data
      */
     @Override
